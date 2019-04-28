@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace GB_CSharp_lvl_2
 {
@@ -18,24 +19,37 @@ namespace GB_CSharp_lvl_2
         }
 
         public static BaseObject[] _objs;
+        public static List<Image> _images;
 
         public static void Load()
         {
+            _images = new List<Image>();
+            _images.Add(Image.FromFile(@"..\..\res\Background_1.png"));
+            _images.Add(Image.FromFile(@"..\..\res\Planet_1.png"));
+            _images.Add(Image.FromFile(@"..\..\res\Planet_2.png"));
+            _images.Add(Image.FromFile(@"..\..\res\Planet_3.png"));
+            _images.Add(Image.FromFile(@"..\..\res\Star_1.png"));
+            _images.Add(Image.FromFile(@"..\..\res\Star_2.png"));
+            _images.Add(Image.FromFile(@"..\..\res\Star_3.png"));
+
             _objs = new BaseObject[30];
             Random rnd = new Random();
-            for (int i = 0; i < _objs.Length / 2; i++)
+            for (int i = 0; i < _objs.Length * 3 / 4; i++)
             {
-                int x = rnd.Next(-30, 0);
-                int n = -x + rnd.Next(5, 15);
-                _objs[i] = new BaseObject(new Point(rnd.Next(10, Width), rnd.Next(10, Width - 10)), new Point(x, 0), new Size(n, n));
+                int n = rnd.Next(-3, -1);
+                _objs[i] = new Star(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 20)), new Point(n, 0), new Size(20, 20), _images[rnd.Next(4, 7)]);
             }
-            for (int i = _objs.Length / 2; i < _objs.Length; i++)
-                _objs[i] = new Star(new Point(rnd.Next(10, Width), rnd.Next(10, Width - 10)), new Point(-3, 0), new Size(5, 5));
+            for (int i = _objs.Length * 3 / 4; i < _objs.Length; i++)
+            {
+                int x = rnd.Next(-10, -1);
+                int n = -x + rnd.Next(10, 35);
+                _objs[i] = new BaseObject(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
+            }
         }
 
         public static void Init(Form form)
         {
-            Timer timer = new Timer { Interval = 100 };
+            Timer timer = new Timer { Interval = 80 };
             timer.Start();
             timer.Tick += Timer_Tick;
 
@@ -55,7 +69,8 @@ namespace GB_CSharp_lvl_2
 
         public static void Draw()
         {
-            Buffer.Graphics.Clear(Color.Black);
+            //Buffer.Graphics.Clear(Color.Black);
+            Buffer.Graphics.DrawImage(_images[0], 0, 0, Width, Height);
             foreach (BaseObject obj in _objs)
                 obj.Draw();
             Buffer.Render();
