@@ -9,21 +9,25 @@ namespace GB_CSharp_lvl_2
     {
         private static BufferedGraphicsContext _context;
         public static BufferedGraphics Buffer;
-        // Свойства
-        // Ширина и высота игрового поля
-        public static int Width { get; set; }
-        public static int Height { get; set; }
+        public static int Width { get; set; }       // Ширина игрового поля
+        public static int Height { get; set; }      // Высота игрового поля
+        private static Bullet _bullet;
+        private static Asteroid[] _asteroids;
+        public static BaseObject[] _objs;
+        public static List<Image> _images = new List<Image>();
 
+        /// <summary>
+        /// Стандартный конструктор
+        /// </summary>
         static Game()
         {
         }
 
-        public static BaseObject[] _objs;
-        public static List<Image> _images;
-
+        /// <summary>
+        /// Метод загружает ресурсы и инициализирует объекты
+        /// </summary>
         public static void Load()
         {
-            _images = new List<Image>();
             _images.Add(Image.FromFile(@"..\..\res\Background_1.png"));
             _images.Add(Image.FromFile(@"..\..\res\Planet_1.png"));
             _images.Add(Image.FromFile(@"..\..\res\Planet_2.png"));
@@ -43,10 +47,23 @@ namespace GB_CSharp_lvl_2
             {
                 int x = rnd.Next(-10, -1);
                 int n = -x + rnd.Next(10, 35);
-                _objs[i] = new BaseObject(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
+                _objs[i] = new Planet(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
+            }
+
+            _bullet = new Bullet(new Point(0, 200), new Point(5, 0), new Size(4, 1));
+            _asteroids = new Asteroid[3];
+
+            for (var i = 0; i < _asteroids.Length; i++)
+            {
+                int r = rnd.Next(5, 50);
+                _asteroids[i] = new Asteroid(new Point(Width, 190), new Point(-r / 5, r), new Size(r, r));
             }
         }
 
+        /// <summary>
+        /// Метод инициализирует графический вывод
+        /// </summary>
+        /// <param name="form"></param>
         public static void Init(Form form)
         {
             Timer timer = new Timer { Interval = 80 };
@@ -67,19 +84,38 @@ namespace GB_CSharp_lvl_2
             Load();
         }
 
+        /// <summary>
+        /// Метод отрисовывает изображение в окне
+        /// </summary>
         public static void Draw()
         {
-            //Buffer.Graphics.Clear(Color.Black);
             Buffer.Graphics.DrawImage(_images[0], 0, 0, Width, Height);
             foreach (BaseObject obj in _objs)
                 obj.Draw();
+            foreach (Asteroid obj in _asteroids)
+                obj.Draw();
+            _bullet.Draw();
             Buffer.Render();
         }
 
+        /// <summary>
+        /// Метод обновляет координаты объектов
+        /// </summary>
         public static void Update()
         {
             foreach (BaseObject obj in _objs)
                 obj.Update();
+            foreach (Asteroid a in _asteroids)
+            {
+                a.Update();
+                if (a.Collision(_bullet))
+                {
+                    System.Media.SystemSounds.Hand.Play();
+                    _bullet.Pos.X = 0;
+                    a.Pos.X = Width;
+                }
+            }
+            _bullet.Update();
         }
 
         private static void Timer_Tick(object sender, EventArgs e)
