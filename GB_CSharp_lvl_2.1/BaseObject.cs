@@ -1,6 +1,19 @@
 ﻿using System;
 using System.Drawing;
 
+/*  Lesson 1
+    1. Добавить свои объекты в иерархию объектов, чтобы получился красивый задний фон, похожий на полет в звездном пространстве.
+    2. * Заменить кружочки картинками, используя метод DrawImage.
+    Lesson 2
+    2. Переделать виртуальный метод Update в BaseObject в абстрактный и реализовать его в наследниках.
+    3. Сделать так, чтобы при столкновении пули с астероидом они регенерировались в разных концах экрана.
+    4. Сделать проверку на задание размера экрана в классе Game. Если высота или ширина (Width, Height) больше 1000 или принимает отрицательное значение, выбросить исключение ArgumentOutOfRangeException().
+    5. * Создать собственное исключение GameObjectException, которое появляется при попытке  создать объект с неправильными характеристиками (например, отрицательные размеры,
+    слишком большая скорость или неверная позиция).
+
+    Александр Кушмилов
+*/
+
 namespace GB_CSharp_lvl_2
 {
     interface ICollision
@@ -118,6 +131,7 @@ namespace GB_CSharp_lvl_2
         {
             Pos = pos;
             Power = 1;
+            Img = Image.FromFile(@"..\..\res\asteroid.png");
         }
 
         /// <summary>
@@ -125,7 +139,7 @@ namespace GB_CSharp_lvl_2
         /// </summary>
         public override void Draw()
         {
-            Game.Buffer.Graphics.FillEllipse(Brushes.White, Pos.X, Pos.Y, Size.Width, Size.Height);
+            Game.Buffer.Graphics.DrawImage(Img, Pos.X, Pos.Y, Size.Width, Size.Height);
         }
 
         /// <summary>

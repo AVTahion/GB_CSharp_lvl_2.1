@@ -40,12 +40,12 @@ namespace GB_CSharp_lvl_2
             Random rnd = new Random();
             for (int i = 0; i < _objs.Length * 3 / 4; i++)
             {
-                int n = rnd.Next(-3, -1);
+                int n = rnd.Next(-2, -1);
                 _objs[i] = new Star(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 20)), new Point(n, 0), new Size(20, 20), _images[rnd.Next(4, 7)]);
             }
             for (int i = _objs.Length * 3 / 4; i < _objs.Length; i++)
             {
-                int x = rnd.Next(-10, -1);
+                int x = rnd.Next(-5, -1);
                 int n = -x + rnd.Next(10, 35);
                 _objs[i] = new Planet(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
             }
@@ -55,7 +55,7 @@ namespace GB_CSharp_lvl_2
 
             for (var i = 0; i < _asteroids.Length; i++)
             {
-                int r = rnd.Next(5, 50);
+                int r = rnd.Next(25, 100);
                 _asteroids[i] = new Asteroid(new Point(Width, 190), new Point(-r / 5, r), new Size(r, r));
             }
         }
@@ -66,7 +66,7 @@ namespace GB_CSharp_lvl_2
         /// <param name="form"></param>
         public static void Init(Form form)
         {
-            Timer timer = new Timer { Interval = 80 };
+            Timer timer = new Timer { Interval = 100 };
             timer.Start();
             timer.Tick += Timer_Tick;
 
@@ -77,8 +77,19 @@ namespace GB_CSharp_lvl_2
             g = form.CreateGraphics();
             // Создаем объект (поверхность рисования) и связываем его с формой
             // Запоминаем размеры формы
-            Width = form.ClientSize.Width;
-            Height = form.ClientSize.Height;
+            try
+            {
+                Width = form.ClientSize.Width;
+                Height = form.ClientSize.Height;
+                if (Width > 1000 || Width <640 || Height < 480 || Height > 1000)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                //MessageBox.Show(ex.Message);
+            }
             // Связываем буфер в памяти с графическим объектом, чтобы рисовать в буфере
             Buffer = _context.Allocate(g, new Rectangle(0, 0, Width, Height));
             Load();
