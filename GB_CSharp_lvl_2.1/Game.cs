@@ -86,9 +86,8 @@ namespace GB_CSharp_lvl_2
                     throw new ArgumentOutOfRangeException();
                 }
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (ArgumentOutOfRangeException)
             {
-                MessageBox.Show(ex.Message);
             }
             // Связываем буфер в памяти с графическим объектом, чтобы рисовать в буфере
             Buffer = _context.Allocate(g, new Rectangle(0, 0, Width, Height));
