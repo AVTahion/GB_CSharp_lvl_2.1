@@ -21,12 +21,19 @@ namespace GB_CSharp_lvl_2
         bool Collision(ICollision obj);
         Rectangle Rect { get; }
     }
+    interface IRespawn
+    {
+        void Respawn();
+    }
 
-    abstract class BaseObject 
+    abstract class BaseObject : ICollision
     {
         protected Point Pos;
         protected Point Dir;
         protected Size Size;
+
+        public Rectangle Rect => new Rectangle(Pos, Size);
+        public bool Collision(ICollision o) => o.Rect.IntersectsWith(Rect);
 
         protected BaseObject(Point pos, Point dir, Size size)
         {
@@ -89,16 +96,11 @@ namespace GB_CSharp_lvl_2
         }
     }
 
-    class Bullet : Planet, ICollision
+    class Bullet : BaseObject, IRespawn
     {
-        internal new Point Pos;
-
-        public Rectangle Rect => new Rectangle(Pos, Size);
-        public bool Collision(ICollision o) => o.Rect.IntersectsWith(Rect);
 
         public Bullet(Point pos, Point dir, Size size) : base(pos, dir, size)
         {
-            Pos = pos;
         }
 
         /// <summary>
@@ -116,44 +118,28 @@ namespace GB_CSharp_lvl_2
         {
             Pos.X = Pos.X + 10;
         }
+
+        public void Respawn()
+        {
+            Pos.X = 0;
+        }
     }
 
-    class Asteroid : Planet, ICollision
+    class Asteroid : Planet, IRespawn
     {
-        internal new Point Pos;
         public int Power { get; set; }
-
-        public Rectangle Rect => new Rectangle(Pos, Size);
-        public bool Collision(ICollision o) => o.Rect.IntersectsWith(Rect);
-
 
         public Asteroid(Point pos, Point dir, Size size) : base(pos, dir, size)
         {
-            Pos = pos;
             Power = 1;
             Img = Image.FromFile(@"..\..\res\asteroid.png");
         }
 
-        /// <summary>
-        /// Метод отрисовывает объект в окне приложения
-        /// </summary>
-        public override void Draw()
-        {
-            Game.Buffer.Graphics.DrawImage(Img, Pos.X, Pos.Y, Size.Width, Size.Height);
-        }
-
-        /// <summary>
-        /// Метод обновляет координаты объекта
-        /// </summary>
-        public override void Update()
+        public void Respawn()
         {
             Random rnd = new Random();
-            Pos.X = Pos.X + Dir.X;
-            if (Pos.X < 0)
-            {
-                Pos.X = Game.Width + Size.Width;
-                Pos.Y = rnd.Next(10, Game.Height - 10);
-            }
+            Pos.X = Game.Width + Size.Width;
+            Pos.Y = rnd.Next(10, Game.Height - 10);
         }
 
     }

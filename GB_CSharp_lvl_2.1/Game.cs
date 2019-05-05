@@ -121,8 +121,8 @@ namespace GB_CSharp_lvl_2
                 if (a.Collision(_bullet))
                 {
                     System.Media.SystemSounds.Hand.Play();
-                    _bullet.Pos.X = 0;
-                    a.Pos.X = Width;
+                    _bullet.Respawn();
+                    a.Respawn();
                 }
             }
             _bullet.Update();
