@@ -10,6 +10,13 @@ using System.Drawing;
     4. Сделать проверку на задание размера экрана в классе Game. Если высота или ширина (Width, Height) больше 1000 или принимает отрицательное значение, выбросить исключение ArgumentOutOfRangeException().
     5. * Создать собственное исключение GameObjectException, которое появляется при попытке  создать объект с неправильными характеристиками (например, отрицательные размеры,
     слишком большая скорость или неверная позиция).
+    Lesson 3
+    1. Добавить космический корабль, как описано в уроке.
+    2. Доработать в игру «Астероиды»:
+        - ведение журнала в консоль с помощью делегатов;
+        - * ведение журнала в файл.
+    3. Разработать аптечки, которые добавляют энергию.
+    4. Добавить подсчет очков за сбитые астероиды.
 
     Александр Кушмилов
 */
@@ -21,10 +28,13 @@ namespace GB_CSharp_lvl_2
         bool Collision(ICollision obj);
         Rectangle Rect { get; }
     }
+
     interface IRespawn
     {
         void Respawn();
     }
+
+    public delegate void Message();
 
     class GameObjectException : Exception
     {
@@ -61,6 +71,9 @@ namespace GB_CSharp_lvl_2
             Size = size;
         }
 
+        /// <summary>
+        /// Реализация IRespawn
+        /// </summary>
         public virtual void Respawn()
         {
             Random rnd = new Random();
@@ -157,4 +170,72 @@ namespace GB_CSharp_lvl_2
             Power = 1;
         }
     }
+
+    class Ship : Planet
+    {
+        private int _energy = 100;
+        public int Energy
+        {
+            set
+            {
+                _energy = value;
+                if (_energy > 100) _energy = 100;
+            }
+            get => _energy;
+        }
+        public int Score { get; set; }
+
+        public void EnergyLow(int n)
+        {
+            Energy -= n;
+        }
+
+        public Ship(Point pos, Point dir, Size size, Image img) : base(pos, dir, size, img)
+        {
+        }
+
+        public override void Update()
+        {
+        }
+
+        public void Up()
+        {
+            if (Pos.Y > 0) Pos.Y = Pos.Y - Dir.Y;
+        }
+
+        public void Down()
+        {
+            if (Pos.Y < Game.Height) Pos.Y = Pos.Y + Dir.Y;
+        }
+
+        public void Die()
+        {
+            MessageDie?.Invoke();
+        }
+
+        /// <summary>
+        /// Метод востановления энергии
+        /// </summary>
+        /// <param name="fak"></param>
+        public void Heal(FirstAidKit fak)
+        {
+            if (Energy < 100)
+            {
+                Energy += fak.Power;
+            }
+        }
+
+        public static event Message MessageDie;
+    }
+
+    class FirstAidKit : Planet
+    {
+        public int Power { get; set; }
+
+        public FirstAidKit(Point pos, Point dir, Size size, Image img) : base(pos, dir, size, img)
+        {
+            Power = 10;
+        }
+    }
 }
+
