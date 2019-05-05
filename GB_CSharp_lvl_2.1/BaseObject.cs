@@ -26,7 +26,14 @@ namespace GB_CSharp_lvl_2
         void Respawn();
     }
 
-    abstract class BaseObject : ICollision
+    class GameObjectException : Exception
+    {
+        public GameObjectException(string message) : base(message)
+        {
+        }
+    }
+
+    abstract class BaseObject : ICollision, IRespawn
     {
         protected Point Pos;
         protected Point Dir;
@@ -37,9 +44,28 @@ namespace GB_CSharp_lvl_2
 
         protected BaseObject(Point pos, Point dir, Size size)
         {
+            if (pos.X < 0 || pos.X > Game.Width || pos.Y < 0 || pos.Y > Game.Height)
+            {
+                throw new GameObjectException("Координаты объекта вне игрового экрана");
+            }
             Pos = pos;
+            if (dir.X > 20 || dir.Y > 20 || dir.X < -20 || dir.Y < -20)
+            {
+                throw new GameObjectException("Штраф за привышение скорости объектом!");
+            }
             Dir = dir;
+            if (size.Height <= 0 || size.Width <= 0)
+            {
+                throw new GameObjectException("Недопустимые размеры объекта");
+            }
             Size = size;
+        }
+
+        public virtual void Respawn()
+        {
+            Random rnd = new Random();
+            Pos.X = Game.Width + Size.Width;
+            Pos.Y = rnd.Next(10, Game.Height - 10);
         }
 
         /// <summary>
@@ -62,10 +88,6 @@ namespace GB_CSharp_lvl_2
             Img = img;
         }
 
-        public Planet(Point pos, Point dir, Size size) : base(pos, dir, size)
-        {
-        }
-
         /// <summary>
         /// Метод отрисовывает объект в окне приложения
         /// </summary>
@@ -79,12 +101,10 @@ namespace GB_CSharp_lvl_2
         /// </summary>
         public override void Update()
         {
-            Random rnd = new Random();
             Pos.X = Pos.X + Dir.X;
             if (Pos.X < 0)
             {
-                Pos.X = Game.Width + Size.Width;
-                Pos.Y = rnd.Next(10, Game.Height - 10);
+                Respawn();
             }
         }
     }
@@ -96,7 +116,7 @@ namespace GB_CSharp_lvl_2
         }
     }
 
-    class Bullet : BaseObject, IRespawn
+    class Bullet : BaseObject
     {
 
         public Bullet(Point pos, Point dir, Size size) : base(pos, dir, size)
@@ -119,28 +139,22 @@ namespace GB_CSharp_lvl_2
             Pos.X = Pos.X + 10;
         }
 
-        public void Respawn()
+        /// <summary>
+        /// Реализация IRespawn
+        /// </summary>
+        public override void Respawn()
         {
             Pos.X = 0;
         }
     }
 
-    class Asteroid : Planet, IRespawn
+    class Asteroid : Planet
     {
         public int Power { get; set; }
 
-        public Asteroid(Point pos, Point dir, Size size) : base(pos, dir, size)
+        public Asteroid(Point pos, Point dir, Size size, Image img) : base(pos, dir, size, img)
         {
             Power = 1;
-            Img = Image.FromFile(@"..\..\res\asteroid.png");
         }
-
-        public void Respawn()
-        {
-            Random rnd = new Random();
-            Pos.X = Game.Width + Size.Width;
-            Pos.Y = rnd.Next(10, Game.Height - 10);
-        }
-
     }
 }

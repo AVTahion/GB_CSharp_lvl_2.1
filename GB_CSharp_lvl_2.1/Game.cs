@@ -35,6 +35,7 @@ namespace GB_CSharp_lvl_2
             _images.Add(Image.FromFile(@"..\..\res\Star_1.png"));
             _images.Add(Image.FromFile(@"..\..\res\Star_2.png"));
             _images.Add(Image.FromFile(@"..\..\res\Star_3.png"));
+            _images.Add(Image.FromFile(@"..\..\res\asteroid.png"));
 
             _objs = new BaseObject[30];
             Random rnd = new Random();
@@ -56,7 +57,7 @@ namespace GB_CSharp_lvl_2
             for (var i = 0; i < _asteroids.Length; i++)
             {
                 int r = rnd.Next(25, 100);
-                _asteroids[i] = new Asteroid(new Point(Width, 190), new Point(-r / 5, r), new Size(r, r));
+                _asteroids[i] = new Asteroid(new Point(Width, 190), new Point(-r / 5, 0), new Size(r, r), _images[7]);
             }
         }
 
