@@ -44,24 +44,34 @@ namespace GB_CSharp_lvl_2
 
             _objs = new BaseObject[30];
             Random rnd = new Random();
-            for (int i = 0; i < _objs.Length * 3 / 4; i++)
+            try
             {
-                int n = rnd.Next(-2, -1);
-                _objs[i] = new Star(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 20)), new Point(n, 0), new Size(20, 20), _images[rnd.Next(4, 7)]);
-            }
-            for (int i = _objs.Length * 3 / 4; i < _objs.Length; i++)
-            {
-                int x = rnd.Next(-5, -1);
-                int n = -x + rnd.Next(10, 35);
-                _objs[i] = new Planet(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
-            }
+                for (int i = 0; i < _objs.Length * 3 / 4; i++)
+                {
+                    int n = rnd.Next(-2, -1);
+                    _objs[i] = new Star(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 20)), new Point(n, 0), new Size(20, 20), _images[rnd.Next(4, 7)]);
+                }
+                for (int i = _objs.Length * 3 / 4; i < _objs.Length; i++)
+                {
+                    int x = rnd.Next(-5, -1);
+                    int n = -x + rnd.Next(10, 35);
+                    _objs[i] = new Planet(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
+                }
 
-            _asteroids = new Asteroid[3];
+                _asteroids = new Asteroid[3];
 
-            for (var i = 0; i < _asteroids.Length; i++)
+                for (var i = 0; i < _asteroids.Length; i++)
+                {
+                    int r = rnd.Next(25, 100);
+                    _asteroids[i] = new Asteroid(new Point(Width, rnd.Next(10, Height - 10)), new Point(-r / 5, 0), new Size(r, r), _images[7]);
+                }
+            }
+            catch(GameObjectException gex)
             {
-                int r = rnd.Next(25, 100);
-                _asteroids[i] = new Asteroid(new Point(Width, rnd.Next(10, Height - 10)), new Point(-r / 5, 0), new Size(r, r), _images[7]);
+                Console.WriteLine("Message:" + gex.Message);
+                Console.WriteLine("Source:" + gex.Source);
+                Console.WriteLine("TargetSite:" + gex.TargetSite);
+                Console.WriteLine("StackTrace:" + gex.StackTrace);
             }
 
             _ship = new Ship(new Point(10, 400), new Point(0, 10), new Size(100, 40), _images[8]);
@@ -93,8 +103,11 @@ namespace GB_CSharp_lvl_2
                     throw new ArgumentOutOfRangeException();
                 }
             }
-            catch (ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException ex)
             {
+                Console.WriteLine("Source:" + ex.Source);
+                Console.WriteLine("TargetSite:" + ex.TargetSite);
+                Console.WriteLine("StackTrace:" + ex.StackTrace);
             }
             // Связываем буфер в памяти с графическим объектом, чтобы рисовать в буфере
             Buffer = _context.Allocate(g, new Rectangle(0, 0, Width, Height));
