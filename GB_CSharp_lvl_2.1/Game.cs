@@ -75,6 +75,7 @@ namespace GB_CSharp_lvl_2
             }
 
             _ship = new Ship(new Point(10, 400), new Point(0, 10), new Size(100, 40), _images[8]);
+            _ship.RegisterLogMsg(new LogMessage(LogToConsole));
         }
 
         /// <summary>
@@ -151,7 +152,7 @@ namespace GB_CSharp_lvl_2
                     System.Media.SystemSounds.Hand.Play();
                     _asteroids[i].Respawn();
                     _bullet = null;
-                    _ship.Score += 10;
+                    _ship.ScoreChange(10);
                     if (_ship.Energy < 100 && _fak == null)
                     {
                         var rnd = new Random();
@@ -206,6 +207,11 @@ namespace GB_CSharp_lvl_2
             _timer.Stop();
             Buffer.Graphics.DrawString("Game Over", new Font(FontFamily.GenericSansSerif, 60, FontStyle.Underline), Brushes.Red, Width / 2 - 200, Height / 2 - 30);
             Buffer.Render();
+        }
+
+        public static void LogToConsole (string msg)
+        {
+            Console.WriteLine(msg);
         }
     }
 }

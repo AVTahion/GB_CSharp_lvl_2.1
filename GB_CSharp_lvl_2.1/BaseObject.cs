@@ -36,6 +36,8 @@ namespace GB_CSharp_lvl_2
 
     public delegate void Message();
 
+    public delegate void LogMessage(string msg);
+
     class GameObjectException : Exception
     {
         public GameObjectException(string message) : base(message)
@@ -48,6 +50,8 @@ namespace GB_CSharp_lvl_2
         protected Point Pos;
         protected Point Dir;
         protected Size Size;
+
+        protected LogMessage ListOfLog;
 
         public Rectangle Rect => new Rectangle(Pos, Size);
         public bool Collision(ICollision o) => o.Rect.IntersectsWith(Rect);
@@ -90,6 +94,15 @@ namespace GB_CSharp_lvl_2
         /// Метод обновляет координаты объекта
         /// </summary>
         public abstract void Update();
+
+        /// <summary>
+        /// Метод регистрации на делегат
+        /// </summary>
+        /// <param name="logMessage"></param>
+        public void RegisterLogMsg(LogMessage logMessage)
+        {
+            ListOfLog = logMessage;
+        }
     }
 
     class Planet : BaseObject
@@ -183,11 +196,16 @@ namespace GB_CSharp_lvl_2
             }
             get => _energy;
         }
-        public int Score { get; set; }
+        internal int Score { get; set; }
 
+        /// <summary>
+        /// Метод уменьшения энергии корабля
+        /// </summary>
+        /// <param name="n"></param>
         public void EnergyLow(int n)
         {
             Energy -= n;
+            ListOfLog?.Invoke($"{DateTime.Now}: Ship Energy {Energy + n} => {Energy}");
         }
 
         public Ship(Point pos, Point dir, Size size, Image img) : base(pos, dir, size, img)
@@ -198,11 +216,27 @@ namespace GB_CSharp_lvl_2
         {
         }
 
+        /// <summary>
+        /// Метод изменения счета игры
+        /// </summary>
+        /// <param name="v"></param>
+        internal void ScoreChange(int v)
+        {
+            Score += v;
+            ListOfLog?.Invoke($"{DateTime.Now}: Score {Score - v} => {Score}");
+        }
+
+        /// <summary>
+        /// Метод расчета координат корабля при движении вверх
+        /// </summary>
         public void Up()
         {
             if (Pos.Y > 0) Pos.Y = Pos.Y - Dir.Y;
         }
 
+        /// <summary>
+        /// Метод расчета координат корабля при движении вниз
+        /// </summary>
         public void Down()
         {
             if (Pos.Y < Game.Height) Pos.Y = Pos.Y + Dir.Y;
@@ -222,6 +256,7 @@ namespace GB_CSharp_lvl_2
             if (Energy < 100)
             {
                 Energy += fak.Power;
+                ListOfLog?.Invoke($"{DateTime.Now}: Ship Energy {Energy - fak.Power} => {Energy}");
             }
         }
 
