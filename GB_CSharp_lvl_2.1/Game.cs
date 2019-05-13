@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
@@ -76,6 +77,8 @@ namespace GB_CSharp_lvl_2
 
             _ship = new Ship(new Point(10, 400), new Point(0, 10), new Size(100, 40), _images[8]);
             _ship.RegisterLogMsg(new LogMessage(LogToConsole));
+            _ship.RegisterLogMsg(new LogMessage(LogToFile));
+
         }
 
         /// <summary>
@@ -209,9 +212,25 @@ namespace GB_CSharp_lvl_2
             Buffer.Render();
         }
 
+        /// <summary>
+        /// Метод вывода сообщений лога в консоль
+        /// </summary>
+        /// <param name="msg"></param>
         public static void LogToConsole (string msg)
         {
             Console.WriteLine(msg);
+        }
+
+        /// <summary>
+        /// Метод вывода сообщений лога в файл
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void LogToFile (string msg)
+        {
+            using (StreamWriter swlog = File.AppendText(@"log.txt"))
+            {
+                swlog.WriteLine(msg);
+            }
         }
     }
 }

@@ -101,7 +101,7 @@ namespace GB_CSharp_lvl_2
         /// <param name="logMessage"></param>
         public void RegisterLogMsg(LogMessage logMessage)
         {
-            ListOfLog = logMessage;
+            ListOfLog += logMessage;
         }
     }
 
