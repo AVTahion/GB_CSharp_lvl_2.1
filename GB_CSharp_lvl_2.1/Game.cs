@@ -13,12 +13,12 @@ namespace GB_CSharp_lvl_2
         public static int Width { get; set; }       // Ширина игрового поля
         public static int Height { get; set; }      // Высота игрового поля
         private static Bullet _bullet;
-        private static Asteroid[] _asteroids;
         public static BaseObject[] _objs;
         public static List<Image> _images = new List<Image>();
         private static Ship _ship;
         private static FirstAidKit _fak;
         private static Timer _timer = new Timer { Interval = 100 };
+        private static ListOfAsteroids asteroidsArr;
 
         /// <summary>
         /// Стандартный конструктор
@@ -59,13 +59,7 @@ namespace GB_CSharp_lvl_2
                     _objs[i] = new Planet(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
                 }
 
-                _asteroids = new Asteroid[3];
-
-                for (var i = 0; i < _asteroids.Length; i++)
-                {
-                    int r = rnd.Next(25, 100);
-                    _asteroids[i] = new Asteroid(new Point(Width, rnd.Next(10, Height - 10)), new Point(-r / 5, 0), new Size(r, r), _images[7]);
-                }
+                asteroidsArr = new ListOfAsteroids(3, Width, Height, _images[7]);
             }
             catch(GameObjectException gex)
             {
@@ -127,7 +121,7 @@ namespace GB_CSharp_lvl_2
             Buffer.Graphics.DrawImage(_images[0], 0, 0, Width, Height);
             foreach (BaseObject obj in _objs)
                 obj?.Draw();
-            foreach (Asteroid obj in _asteroids)
+            foreach (Asteroid obj in asteroidsArr)
                 obj?.Draw();
             _bullet?.Draw();
             _ship?.Draw();
@@ -147,30 +141,37 @@ namespace GB_CSharp_lvl_2
         {
             foreach (BaseObject obj in _objs)
                 obj.Update();
-            for (var i = 0; i < _asteroids.Length; i++)
+            if (asteroidsArr.Length != 0)
             {
-                _asteroids[i].Update();
-                if (_bullet != null && _bullet.Collision(_asteroids[i]))
+                for (var i = 0; i < asteroidsArr.Length; i++)
                 {
-                    System.Media.SystemSounds.Hand.Play();
-                    _asteroids[i].Respawn();
-                    _bullet = null;
-                    _ship.ScoreChange(10);
-                    if (_ship.Energy < 100 && _fak == null)
+                    asteroidsArr[i].Update();
+                    if (_bullet != null && _bullet.Collision(asteroidsArr[i]))
                     {
-                        var rnd = new Random();
-                        _fak = new FirstAidKit(new Point(Width, rnd.Next(10, Height - 10)), new Point(-10, 0), new Size(50, 50), _images[9]);
+                        System.Media.SystemSounds.Hand.Play();
+                        _bullet = null;
+                        asteroidsArr.AsteroidDestruction(i);
+                        _ship.ScoreChange(10);
+                        if (_ship.Energy < 100 && _fak == null)
+                        {
+                            var rnd = new Random();
+                            _fak = new FirstAidKit(new Point(Width, rnd.Next(10, Height - 10)), new Point(-10, 0), new Size(50, 50), _images[9]);
+                        }
+                        continue;
                     }
-                    continue;
+                    if (_ship.Collision(asteroidsArr[i]))
+                    {
+                        asteroidsArr.AsteroidDestruction(i);
+                        var rnd = new Random();
+                        _ship?.EnergyLow(rnd.Next(10, 20));
+                        System.Media.SystemSounds.Asterisk.Play();
+                    }
+                    if (_ship.Energy <= 0) _ship?.Die();
                 }
-                if (_ship.Collision(_asteroids[i]))
-                {
-                    _asteroids[i].Respawn();
-                    var rnd = new Random();
-                    _ship?.EnergyLow(rnd.Next(10, 20));
-                    System.Media.SystemSounds.Asterisk.Play();
-                }
-                if (_ship.Energy <= 0) _ship?.Die();
+            }
+            else
+            {
+                asteroidsArr.AddAsteroids(asteroidsArr.numbOfAsteroids + 1, Width, Height, _images[7]);
             }
             if (_fak != null)
             {

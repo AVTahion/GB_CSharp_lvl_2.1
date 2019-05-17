@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 
 /*  Lesson 1
@@ -17,6 +19,8 @@ using System.Drawing;
         - * ведение журнала в файл.
     3. Разработать аптечки, которые добавляют энергию.
     4. Добавить подсчет очков за сбитые астероиды.
+    Lesson 4
+    1. Добавить в программу коллекцию астероидов. Как только она заканчивается (все астероиды сбиты), формируется новая коллекция, в которой на один астероид больше.
 
     Александр Кушмилов
 */
@@ -271,6 +275,59 @@ namespace GB_CSharp_lvl_2
         {
             Power = 10;
         }
+    }
+
+    class ListOfAsteroids : IEnumerable
+    {
+        protected List<Asteroid> list = new List<Asteroid>();
+        public int numbOfAsteroids { get; set; }
+        public int Length => list.Count;
+
+        /// <summary>
+        /// Индексатор
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public Asteroid this[int index]
+        {
+            get => list[index];
+            set => list[index] = value;
+        }
+
+        public ListOfAsteroids(int numbOfAst, int maxX, int maxY, Image img)
+        {
+            numbOfAsteroids = numbOfAst - 1;
+            AddAsteroids(numbOfAsteroids, maxX, maxY, img);
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)list).GetEnumerator();
+        }
+
+        /// <summary>
+        /// Метод заполняет список указанным кол-вом астеройдов
+        /// </summary>
+        /// <param name="numb">Кол-во астеройдов</param>
+        /// <param name="maxX">Макс координата по X</param>
+        /// <param name="maxY">Макс координата по Y</param>
+        /// <param name="img">Изображение астеройда</param>
+        internal void AddAsteroids(int numb, int maxX, int maxY, Image img)
+        {
+            numbOfAsteroids += 1;
+            Random rnd = new Random();
+            for (var i = 0; i < numb; i++)
+            {
+                int r = rnd.Next(25, 100);
+                list.Add(new Asteroid(new Point(maxX, rnd.Next(10, maxY - 10)), new Point(-r / 5, 0), new Size(r, r), img));
+            }
+        }
+
+        /// <summary>
+        /// Метод удаляет астеройд из списка по индексу
+        /// </summary>
+        /// <param name="index">Индекс астеройда</param>
+        public void AsteroidDestruction(int index) => list.RemoveAt(index);
     }
 }
 
