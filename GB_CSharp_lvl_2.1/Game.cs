@@ -12,7 +12,7 @@ namespace GB_CSharp_lvl_2
         public static BufferedGraphics Buffer;
         public static int Width { get; set; }       // Ширина игрового поля
         public static int Height { get; set; }      // Высота игрового поля
-        private static Bullet _bullet;
+        private static List<Bullet> _bullets = new List<Bullet>();
         public static BaseObject[] _objs;
         public static List<Image> _images = new List<Image>();
         private static Ship _ship;
@@ -123,7 +123,7 @@ namespace GB_CSharp_lvl_2
                 obj?.Draw();
             foreach (Asteroid obj in asteroidsArr)
                 obj?.Draw();
-            _bullet?.Draw();
+            foreach (Bullet b in _bullets) b.Draw();
             _ship?.Draw();
             _fak?.Draw();
             if (_ship != null)
@@ -139,25 +139,29 @@ namespace GB_CSharp_lvl_2
         /// </summary>
         public static void Update()
         {
-            foreach (BaseObject obj in _objs)
-                obj.Update();
+            foreach (BaseObject obj in _objs) obj.Update();
+            foreach (Bullet b in _bullets) b.Update();
+
             if (asteroidsArr.Length != 0)
             {
                 for (var i = 0; i < asteroidsArr.Length; i++)
                 {
                     asteroidsArr[i].Update();
-                    if (_bullet != null && _bullet.Collision(asteroidsArr[i]))
+                    for (int j = 0; j < _bullets.Count; j++)
                     {
-                        System.Media.SystemSounds.Hand.Play();
-                        _bullet = null;
-                        asteroidsArr.AsteroidDestruction(i);
-                        _ship.ScoreChange(10);
-                        if (_ship.Energy < 100 && _fak == null)
+                        if (_bullets[j].Collision(asteroidsArr[i]))
                         {
-                            var rnd = new Random();
-                            _fak = new FirstAidKit(new Point(Width, rnd.Next(10, Height - 10)), new Point(-10, 0), new Size(50, 50), _images[9]);
+                            System.Media.SystemSounds.Hand.Play();
+                            asteroidsArr.AsteroidDestruction(i);
+                            _bullets.RemoveAt(j);
+                            _ship.ScoreChange(10);
+                            j--;
+                            if (_ship.Energy < 100 && _fak == null)
+                            {
+                                var rnd = new Random();
+                                _fak = new FirstAidKit(new Point(Width, rnd.Next(10, Height - 10)), new Point(-10, 0), new Size(50, 50), _images[9]);
+                            }
                         }
-                        continue;
                     }
                     if (_ship.Collision(asteroidsArr[i]))
                     {
@@ -182,7 +186,6 @@ namespace GB_CSharp_lvl_2
                 }
             }
             _fak?.Update();
-            _bullet?.Update();
         }
 
         private static void Timer_Tick(object sender, EventArgs e)
@@ -198,7 +201,7 @@ namespace GB_CSharp_lvl_2
         /// <param name="e"></param>
         private static void Form_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.ControlKey) _bullet = new Bullet(new Point(_ship.Rect.X + 100, _ship.Rect.Y + 20), new Point(4, 0), new Size(4, 1));
+            if (e.KeyCode == Keys.ControlKey) _bullets.Add(new Bullet(new Point(_ship.Rect.X + 100, _ship.Rect.Y + 20), new Point(4, 0), new Size(4, 1)));
             if (e.KeyCode == Keys.Up) _ship.Up();
             if (e.KeyCode == Keys.Down) _ship.Down();
         }
