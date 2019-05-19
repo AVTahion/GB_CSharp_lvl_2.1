@@ -59,7 +59,7 @@ namespace GB_CSharp_lvl_2
                     _objs[i] = new Planet(new Point(rnd.Next(10, Width), rnd.Next(10, Height - 10)), new Point(x, 0), new Size(n, n), _images[rnd.Next(1, 4)]);
                 }
 
-                asteroidsArr = new ListOfAsteroids(3, Width, Height, _images[7]);
+                asteroidsArr = new ListOfAsteroids(4, Width, Height, _images[7]);
             }
             catch(GameObjectException gex)
             {
@@ -144,31 +144,35 @@ namespace GB_CSharp_lvl_2
 
             if (asteroidsArr.Length != 0)
             {
-                for (var i = 0; i < asteroidsArr.Length; i++)
+                for (var i = asteroidsArr.Length - 1; i >= 0; i--)
                 {
                     asteroidsArr[i].Update();
-                    for (int j = 0; j < _bullets.Count; j++)
-                    {
-                        if (_bullets[j].Collision(asteroidsArr[i]))
-                        {
-                            System.Media.SystemSounds.Hand.Play();
-                            asteroidsArr.AsteroidDestruction(i);
-                            _bullets.RemoveAt(j);
-                            _ship.ScoreChange(10);
-                            j--;
-                            if (_ship.Energy < 100 && _fak == null)
-                            {
-                                var rnd = new Random();
-                                _fak = new FirstAidKit(new Point(Width, rnd.Next(10, Height - 10)), new Point(-10, 0), new Size(50, 50), _images[9]);
-                            }
-                        }
-                    }
                     if (_ship.Collision(asteroidsArr[i]))
                     {
                         asteroidsArr.AsteroidDestruction(i);
                         var rnd = new Random();
                         _ship?.EnergyLow(rnd.Next(10, 20));
                         System.Media.SystemSounds.Asterisk.Play();
+                    }
+                    else
+                    {
+                        for (int j = _bullets.Count - 1; j >= 0; j--)
+                        {
+                            if (_bullets[j].Collision(asteroidsArr[i]))
+                            {
+                                System.Media.SystemSounds.Hand.Play();
+                                asteroidsArr.AsteroidDestruction(i);
+                                _bullets.RemoveAt(j);
+                                _ship.ScoreChange(10);
+                                if (_ship.Energy < 100 && _fak == null)
+                                {
+                                    var rnd = new Random();
+                                    _fak = new FirstAidKit(new Point(Width, rnd.Next(10, Height - 10)), new Point(-10, 0), new Size(50, 50), _images[9]);
+                                }
+                                break;
+                            }
+                        }
+
                     }
                     if (_ship.Energy <= 0) _ship?.Die();
                 }

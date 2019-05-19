@@ -279,7 +279,7 @@ namespace GB_CSharp_lvl_2
 
     class ListOfAsteroids : IEnumerable
     {
-        protected List<Asteroid> list = new List<Asteroid>();
+        public List<Asteroid> list = new List<Asteroid>();
         public int numbOfAsteroids { get; set; }
         public int Length => list.Count;
 
